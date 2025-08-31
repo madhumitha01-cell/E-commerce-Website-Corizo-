@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Checkout – Your Store</title>
+  <style>
+    :root{
+      --bg:#f6f7f9; --card:#fff; --ink:#111; --muted:#6b7280; --brand:#2563eb;
+      --ok:#16a34a; --warn:#d97706; --error:#dc2626; --border:#e5e7eb;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif}
+    .wrap{max-width:1200px;margin:auto;padding:20px}
+    header{display:flex;gap:16px;align-items:center;margin-bottom:16px}
+    header img{height:32px}
+    .grid{display:grid;gap:20px;grid-template-columns:1.1fr .9fr}
+    @media (max-width:960px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius);box-shadow:0 2px 10px rgba(0,0,0,.04)}
+    .card h2{font-size:18px;margin:0;padding:16px;border-bottom:1px solid var(--border)}
+    .card .body{padding:16px}
+    .row{display:grid;gap:12px;grid-template-columns:repeat(12,1fr)}
+    .col-6{grid-column:span 6}
+    .col-12{grid-column:span 12}
+    label{display:block;font-weight:600;margin-bottom:4px}
+    input, select, textarea{
+      width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:10px;background:#fff;
+      font:inherit
+    }
+    input:focus, select:focus, textarea:focus{outline:2px solid var(--brand);outline-offset:1px}
+    .muted{color:var(--muted)}
+    .pill{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff}
+    .section{border:1px dashed var(--border);border-radius:12px;padding:12px}
+    .flex{display:flex;gap:10px;align-items:center}
+    .between{justify-content:space-between}
+    .right{display:flex;flex-direction:column;gap:16px;position:sticky;top:16px}
+    .total{font-size:18px;font-weight:800}
+    .btn{
+      appearance:none;border:0;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer
+    }
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-ghost{background:#fff;border:1px solid var(--border)}
+    .btn-full{width:100%}
+    .tag{background:#eef2ff;border:1px solid #dbeafe;color:#1e40af;padding:4px 8px;border-radius:999px;font-size:12px}
+    details{border:1px solid var(--border);border-radius:10px;padding:10px}
+    summary{cursor:pointer;font-weight:600}
+    .pay-tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+    .pay-tab{padding:8px 12px;border:1px solid var(--border);border-radius:999px;background:#fff;cursor:pointer}
+    .pay-tab[aria-selected="true"]{background:#eff6ff;border-color:#bfdbfe}
+    .hidden{display:none !important}
+    .error{color:var(--error);font-size:13px;margin-top:6px}
+    .success{color:var(--ok);font-size:13px;margin-top:6px}
+    .coupon{display:grid;grid-template-columns:1fr auto;gap:8px}
+    .mono{font-variant-numeric: tabular-nums}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header aria-label="Checkout header">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/a/a9/Amazon_logo.svg" alt="" style="display:none">
+      <strong style="font-size:20px">Your Store</strong>
+      <span class="muted">Secure Checkout</span>
+      <span class="tag" aria-hidden="true">🔒 256-bit TLS</span>
+    </header>
+
+    <form id="checkoutForm" novalidate>
+      <div class="grid">
+        <!-- LEFT -->
+        <div class="left column">
+          <!-- 1. Address & Delivery -->
+          <section class="card" aria-labelledby="addr-title">
+            <h2 id="addr-title">1. Delivery & Address</h2>
+            <div class="body">
+              <div class="row">
+                <div class="col-6">
+                  <label for="fullName">Full name</label>
+                  <input id="fullName" name="name" autocomplete="name" required />
+                  <div class="error" id="err-name" role="alert" aria-live="polite"></div>
+                </div>
+                <div class="col-6">
+                  <label for="phone">Mobile number</label>
+                  <input id="phone" name="tel" type="tel" inputmode="tel" autocomplete="tel" required />
+                  <div class="error" id="err-phone" role="alert" aria-live="polite"></div>
+                </div>
+
+                <div class="col-12">
+                  <label for="address1">Address line 1</label>
+                  <input id="address1" name="address-line1" autocomplete="address-line1" required />
+                </div>
+                <div class="col-12">
+                  <label for="address2">Address line 2 (optional)</label>
+                  <input id="address2" name="address-line2" autocomplete="address-line2" />
+                </div>
+
+                <div class="col-6">
+                  <label for="city">City</label>
+                  <input id="city" name="address-level2" autocomplete="address-level2" required />
+                </div>
+                <div class="col-3">
+                  <label for="state">State</label>
+                  <select id="state" name="address-level1" autocomplete="address-level1" required>
+                    <option value="">Select</option>
+                    <option>Tamil Nadu</option><option>Karnataka</option><option>Kerala</option>
+                    <option>Andhra Pradesh</option><option>Telangana</option><option>Maharashtra</option>
+                    <option>Delhi</option><option>West Bengal</option><option>Gujarat</option>
+                    <option>Other</option>
+                  </select>
+                </div>
+                <div class="col-3">
+                  <label for="pin">PIN code</label>
+                  <input id="pin" name="postal-code" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="postal-code" required />
+                </div>
+
+                <div class="col-12">
+                  <label for="email">Email (for updates)</label>
+                  <input id="email" name="email" type="email" autocomplete="email" required />
+                </div>
+              </div>
+
+              <div class="section" style="margin-top:12px">
+                <div class="row">
+                  <div class="col-6">
+                    <label for="slot">Delivery speed</label>
+                    <select id="slot" name="delivery-slot" required>
+                      <option value="std">Standard (3–5 days) – Free</option>
+                      <option value="exp">Expedited (1–2 days)</option>
+                      <option value="same">Same-day (selected PINs)</option>
+                    </select>
+                  </div>
+                  <div class="col-6" style="display:flex;align-items:end;">
+                    <label class="pill"><input type="checkbox" id="gift" /> <span>🎁 This order is a gift</span></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 2. Offers -->
+          <section class="card" aria-labelledby="offer-title">
+            <h2 id="offer-title">2. Offers, Coupons & Gift Cards</h2>
+            <div class="body">
+              <div class="coupon">
+                <input id="coupon" placeholder="Enter coupon code" autocomplete="one-time-code" />
+                <button class="btn btn-ghost" type="button" id="applyCoupon">Apply</button>
+              </div>
+              <div class="success" id="couponMsg" aria-live="polite"></div>
+
+              <details style="margin-top:12px">
+                <summary>Have a gift card?</summary>
+                <div class="row" style="margin-top:10px">
+                  <div class="col-6">
+                    <label for="gc">Gift card number</label>
+                    <input id="gc" inputmode="numeric" autocomplete="off" />
+                  </div>
+                  <div class="col-3">
+                    <label for="gcpin">PIN</label>
+                    <input id="gcpin" inputmode="numeric" autocomplete="off" />
+                  </div>
+                  <div class="col-3" style="display:flex;align-items:end;">
+                    <button class="btn btn-ghost" type="button" id="redeemGC">Redeem</button>
+                  </div>
+                </div>
+                <div class="success" id="gcMsg" aria-live="polite"></div>
+              </details>
+            </div>
+          </section>
+
+          <!-- 3. Payment -->
+          <section class="card" aria-labelledby="pay-title">
+            <h2 id="pay-title">3. Payment method</h2>
+            <div class="body">
+              <div class="pay-tabs" role="tablist" aria-label="Payment methods">
+                <button class="pay-tab" role="tab" aria-selected="true" data-method="upi">UPI</button>
+                <button class="pay-tab" role="tab" aria-selected="false" data-method="card">Cards</button>
+                <button class="pay-tab" role="tab" aria-selected="false" data-method="netbanking">Netbanking</button>
+                <button class="pay-tab" role="tab" aria-selected="false" data-method="cod">Cash on Delivery</button>
+              </div>
+
+              <!-- UPI -->
+              <div id="pay-upi" role="tabpanel">
+                <div class="row">
+                  <div class="col-12">
+                    <label for="vpa">Your UPI ID (VPA)</label>
+                    <input id="vpa" name="upi-id" placeholder="name@bank" pattern="^[a-zA-Z0-9.\-_]{2,}@[a-zA-Z]{2,}$" autocomplete="off" />
+                    <div class="muted" style="margin-top:6px">Or choose your UPI app below – we’ll open it using UPI intent.</div>
+                  </div>
+                  <div class="col-12" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:10px">
+                    <button type="button" class="btn btn-ghost" data-upi="gpay">Google Pay</button>
+                    <button type="button" class="btn btn-ghost" data-upi="phonepe">PhonePe</button>
+                    <button type="button" class="btn btn-ghost" data-upi="paytm">Paytm</button>
+                    <button type="button" class="btn btn-ghost" data-upi="bhim">BHIM</button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Cards -->
+              <div id="pay-card" class="hidden" role="tabpanel" aria-hidden="true">
+                <!-- In production, replace with your gateway’s Hosted Fields/Elements -->
+                <div class="row">
+                  <div class="col-12">
+                    <div class="section" role="note">
+                      <strong>For demo only:</strong> Don’t collect raw card numbers on your server. Use your gateway’s hosted fields or redirect to keep PCI scope low (SAQ-A). 
+                    </div>
+                  </div>
+                  <div class="col-12">
+                    <label for="cc-name">Name on card</label>
+                    <input id="cc-name" name="cc-name" autocomplete="cc-name" />
+                  </div>
+                  <div class="col-12">
+                    <label for="cc-number">Card number</label>
+                    <input id="cc-number" name="cc-number" inputmode="numeric" autocomplete="cc-number" placeholder="4111 1111 1111 1111" />
+                  </div>
+                  <div class="col-6">
+                    <label for="cc-exp">Expiry (MM/YY)</label>
+                    <input id="cc-exp" name="cc-exp" inputmode="numeric" autocomplete="cc-exp" placeholder="MM/YY" />
+                  </div>
+                  <div class="col-6">
+                    <label for="cc-csc">CVV</label>
+                    <input id="cc-csc" name="cc-csc" inputmode="numeric" autocomplete="cc-csc" placeholder="***" />
+                  </div>
+
+                  <div class="col-12">
+                    <details>
+                      <summary>EMI options (demo)</summary>
+                      <div class="row" style="margin-top:8px">
+                        <div class="col-12">
+                          <label class="pill"><input type="radio" name="emi" value="3" /> 3 months</label>
+                          <label class="pill"><input type="radio" name="emi" value="6" /> 6 months</label>
+                          <label class="pill"><input type="radio" name="emi" value="9" /> 9 months</label>
+                          <label class="pill"><input type="radio" name="emi" value="12" /> 12 months</label>
+                        </div>
+                      </div>
+                    </details>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Netbanking -->
+              <div id="pay-netbanking" class="hidden" role="tabpanel" aria-hidden="true">
+                <label for="bank">Select bank</label>
+                <select id="bank" name="bank">
+                  <option value="">Choose</option>
+                  <option>HDFC Bank</option><option>ICICI Bank</option><option>State Bank of India</option>
+                  <option>Axis Bank</option><option>Kotak Mahindra Bank</option><option>Yes Bank</option>
+                </select>
+                <div class="muted" style="margin-top:6px">You’ll be securely redirected to your bank to complete payment.</div>
+              </div>
+
+              <!-- COD -->
+              <div id="pay-cod" class="hidden" role="tabpanel" aria-hidden="true">
+                <label class="pill"><input type="checkbox" id="cod-otp" /> Collect OTP on delivery</label>
+                <div class="muted" style="margin-top:6px">Cash/Card on delivery availability depends on your PIN code.</div>
+              </div>
+            </div>
+          </section>
+
+          <!-- 4. Review & Pay -->
+          <section class="card" aria-labelledby="review-title">
+            <h2 id="review-title">4. Review & Place order</h2>
+            <div class="body">
+              <label class="pill"><input type="checkbox" id="tnc" required /> I agree to the Terms & Returns policy</label>
+              <div class="error" id="err-tnc" role="alert" aria-live="polite"></div>
+              <div style="margin-top:12px" class="flex between">
+                <div class="muted">You’ll be able to review in your payment app/bank page as well.</div>
+                <button type="submit" class="btn btn-primary">Place your order</button>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <!-- RIGHT: Order summary -->
+        <aside class="right">
+          <section class="card" aria-label="Order summary">
+            <h2 style="padding:16px;border-bottom:1px solid var(--border);margin:0">Order summary</h2>
+            <div class="body">
+              <div class="flex between"><span>Items (2)</span><span class="mono">₹1,999.00</span></div>
+              <div class="flex between"><span>Delivery</span><span class="mono">₹0.00</span></div>
+              <div class="flex between"><span>Coupon</span><span class="mono" id="couponVal">– ₹0.00</span></div>
+              <hr style="border:none;border-top:1px solid var(--border);margin:10px 0" />
+              <div class="flex between total"><span>Order Total</span><span class="mono" id="grand">₹1,999.00</span></div>
+              <div class="muted" style="margin-top:6px">Inclusive of all taxes</div>
+            </div>
+          </section>
+
+          <section class="card" aria-label="Trust badges">
+            <div class="body">
+              <div class="flex" style="gap:8px"><span>🔒</span><div><strong>Secure payments</strong><div class="muted">PCI-compliant gateway</div></div></div>
+              <div class="flex" style="gap:8px"><span>↩️</span><div><strong>Easy returns</strong><div class="muted">Within 7 days</div></div></div>
+              <div class="flex" style="gap:8px"><span>🚚</span><div><strong>Fast delivery</strong><div class="muted">Across India</div></div></div>
+            </div>
+          </section>
+        </aside>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    // --- Tab switching for payment methods
+    const tabs = document.querySelectorAll('.pay-tab');
+    const panels = {
+      upi: document.getElementById('pay-upi'),
+      card: document.getElementById('pay-card'),
+      netbanking: document.getElementById('pay-netbanking'),
+      cod: document.getElementById('pay-cod')
+    };
+    tabs.forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        tabs.forEach(b=>b.setAttribute('aria-selected','false'));
+        btn.setAttribute('aria-selected','true');
+        const key = btn.dataset.method;
+        for (const k in panels){
+          panels[k].classList.toggle('hidden', k!==key);
+          panels[k].setAttribute('aria-hidden', k!==key ? 'true':'false');
+        }
+      });
+    });
+
+    // --- Simple coupon demo
+    const applyBtn = document.getElementById('applyCoupon');
+    const couponInput = document.getElementById('coupon');
+    const couponMsg = document.getElementById('couponMsg');
+    const couponVal = document.getElementById('couponVal');
+    const grand = document.getElementById('grand');
+    const baseTotal = 199900; // paisa
+    let discount = 0;
+
+    function formatINR(paisa){
+      return '₹' + (paisa/100).toLocaleString('en-IN', {minimumFractionDigits:2, maximumFractionDigits:2});
+    }
+
+    function refreshTotal(){
+      grand.textContent = formatINR(baseTotal - discount);
+      couponVal.textContent = '– ' + formatINR(discount);
+    }
+
+    applyBtn.addEventListener('click', ()=>{
+      const code = couponInput.value.trim().toUpperCase();
+      if (code === 'WELCOME10'){
+        discount = Math.round(baseTotal * 0.10);
+        couponMsg.textContent = 'Coupon applied: 10% off';
+        couponMsg.className = 'success';
+      } else if (code){
+        discount = 0;
+        couponMsg.textContent = 'Invalid coupon code';
+        couponMsg.className = 'error';
+      } else {
+        discount = 0;
+        couponMsg.textContent = '';
+      }
+      refreshTotal();
+    });
+
+    document.getElementById('redeemGC').addEventListener('click', ()=>{
+      document.getElementById('gcMsg').textContent = 'Gift card applied (demo)';
+    });
+
+    refreshTotal();
+
+    // --- Validation (minimal)
+    const form = document.getElementById('checkoutForm');
+    form.addEventListener('submit', (e)=>{
+      e.preventDefault();
+      let ok = true;
+
+      function req(id, errId, msg){
+        const el = document.getElementById(id);
+        const val = (el.value || '').trim();
+        const err = document.getElementById(errId);
+        if (!val){ ok=false; err.textContent = msg; el.focus({preventScroll:true}); }
+        else err.textContent = '';
+      }
+
+      req('fullName','err-name','Please enter your full name');
+      req('phone','err-phone','Please enter a mobile number');
+
+      if (!document.getElementById('tnc').checked){
+        document.getElementById('err-tnc').textContent = 'Please accept the Terms to continue';
+        ok=false;
+      } else {
+        document.getElementById('err-tnc').textContent = '';
+      }
+
+      if (!ok) return;
+
+      // Decide by selected tab
+      const selected = Array.from(tabs).find(b=>b.getAttribute('aria-selected')==='true')?.dataset.method;
+
+      if (selected === 'upi'){
+        const vpa = (document.getElementById('vpa').value || '').trim();
+        if (vpa){
+          // Example UPI deep link (demo only). In production, get this from your PSP/gateway.
+          const amount = ((baseTotal - discount)/100).toFixed(2);
+          const payee = 'yourhandle@bank';
+          const url = `upi://pay?pa=${encodeURIComponent(payee)}&pn=${encodeURIComponent('Your Store')}&am=${encodeURIComponent(amount)}&tn=${encodeURIComponent('Order payment')}&cu=INR&tr=${Date.now()}`;
+          window.location.href = url;
+        } else {
+          alert('We will open your UPI app to complete payment (demo).');
+        }
+      } else if (selected === 'netbanking'){
+        alert('Redirecting to bank page (demo).');
+      } else if (selected === 'card'){
+        alert('Use gateway hosted fields for cards in production (demo).');
+      } else if (selected === 'cod'){
+        alert('Order placed with Cash on Delivery (demo).');
+      }
+
+      // Demo: pretend order placed
+      setTimeout(()=>{ alert('Order placed (demo).'); }, 400);
+    });
+  </script>
+</body>
+</html>
